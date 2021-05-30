@@ -12,7 +12,7 @@
 
 4.TS代码需要通过编译器编译为JS，然后再交由JS解析器执行。
 
-![](./img/1.jpg)
+<img src='./img/1.jpg' />
 
 ## 2.TypeScript 开发环境搭建
 
