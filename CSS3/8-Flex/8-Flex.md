@@ -71,9 +71,9 @@ li:nth-child(3){
     column 弹性元素纵向排列（自上向下）
     column-reverse 弹性元素方向纵向排列（自下向上）
 
-    主轴：
+    主轴：（默认为x轴）
         弹性元素的排列方向称为主轴
-    侧轴：
+    侧轴：（默认为y轴）
         与主轴垂直方向的称为侧轴
 
 2.flex-wrap: 设置弹性元素是否在弹性容器中自动换行
@@ -91,7 +91,7 @@ flex-flow: row wrap;
     flex-end 元素沿着主轴终边排列
     center 元素居中排列
     space-around 空白分布到元素两侧
-    space-between 空白均匀分布到元素间
+    space-between 空白均匀分布到元素间(两边贴边)
     space-evenly 空白分布到元素的单侧
 
 
@@ -142,7 +142,8 @@ li:nth-child(3){
 5.align-items: 
 - 元素在辅轴上的对齐方式
   可选值：
-    stretch 默认值，将元素的长度设置为相同的值
+    stretch 默认值，拉伸，将元素的长度设置为相同的值
+		注意：子元素不能设高度，不然无效！
     flex-start 元素不会拉伸，沿着辅轴起边对齐
     flex-end 沿着辅轴的终边对齐
     center 居中对齐
@@ -152,11 +153,7 @@ li:nth-child(3){
     justify-content: center;
     align-items: center;
 
-扩展:
-- align-self: 用来覆盖当前弹性元素上的align-items
-- align-self 是弹性元素的样式
-
-6.align-content: 多轴线的对齐方式。
+6.align-content: 元素在辅轴上的对齐方式（多行元素）
 - 如果元素只有一根轴线，该属性不起作用。即必须有多行的元素！
 - 可选值 跟 justify-content 类似:
 	flex-start | flex-end | center | space-between | space-around | stretch;
@@ -260,6 +257,10 @@ li:nth-child(5) {
 
 5.order 决定弹性元素的排列顺序
 
+6.align-self: 用来覆盖当前弹性元素上的align-items
+可选值 跟 align-items 类似:
+	flex-start | flex-end | center | baseline | stretch;
+
 
 实例:
 ul{
@@ -315,3 +316,180 @@ li:nth-child(3){
     <li>3</li>
 </ul>
 ```
+
+## 案例1：淘宝导航
+
+```html
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 设置外层的容器 */
+    .nav{
+        width: 100%;
+    }
+
+    /* 设置每一行的容器 */
+    .nav-inner{
+        /* 设置为弹性容器 */
+        display: flex;
+        /* 设置主轴上空白的分布 */
+        justify-content: space-around;
+    }
+
+    .item{
+        width: 18%;
+        /* background-color: #bfa; */
+        /* flex: auto; */
+        text-align: center;
+    }
+
+    .item img{
+        /* 设置图片的宽度和父元素宽度一样 */
+        width: 100%;
+    }
+
+    .item a{
+        color: #333;
+        text-decoration: none;
+        font-size: 16px;
+    }
+</style>
+
+<!-- 创建一个外层的容器 -->
+<nav class="nav">
+    <div class="nav-inner">
+        <div class="item">
+            <a href="#">
+                <img src="img/16/1.png">
+                <span>天猫</span>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <img src="img/16/2.png">
+                <span>聚划算</span>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <img src="img/16/3.png">
+                <span>天猫国际</span>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <img src="img/16/4.png">
+                <span>外卖</span>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <img src="img/16/5.png">
+                <span>天猫超市</span>
+            </a>
+        </div>
+    </div>
+    <div class="nav-inner">
+        <div class="item">
+            <a href="#">
+                <img src="img/16/6.png">
+                <span>充值中心</span>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <img src="img/16/7.png">
+                <span>飞猪旅行</span>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <img src="img/16/8.png">
+                <span>领金币</span>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <img src="img/16/9.png">
+                <span>拍卖</span>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <img src="img/16/10.png">
+                <span>分类</span>
+            </a>
+        </div>
+    </div>
+</nav>
+```
+
+## 4.媒体查询
+
++ 用 @media开头 注意@符号
++ mediatype  媒体类型
++ 关键字 and  not  only
++ media feature 媒体特性必须有小括号包含
+
+```
+@media mediatype and|not|only (media feature) {
+    CSS-Code;
+}
+```
+
+1.mediatype  媒体类型：
+
+- all 所有设备
+
+- print 打印设备
+
+- screen 带屏幕的设备
+
+- speech 屏幕阅读器
+
+	- 可以使用,连接多个媒体类型，这样它们之间就是一个或的关系
+
+2.关键字
+
+​	关键字将媒体类型或多个媒体特性连接到一起做为媒体查询的条件。
+
+- and：可以将多个媒体特性连接到一起，相当于“且”的意思。
+- not：排除某个媒体类型，相当于“非”的意思，可以省略。
+- only：指定某个特定的媒体类型，可以省略。
+- 注：,连接的是或关系，and连接的是与的关系
+
+3.媒体特性：
+
+- width 视口的宽度
+
+- height 视口的高度
+
+- min-width 视口的最小宽度（视口大于指定宽度时生效）
+
+- max-width 视口的最大宽度（视口小于指定宽度时生效）
+
+样式切换的分界点，我们称其为断点，也就是网页的样式会在这个点时发生变化
+
+一般比较常用的断点：
+
+- 小于768 超小屏幕 max-width=768px
+
+- 大于768 小屏幕  min-width=768px
+
+- 大于992 中型屏幕 min-width=992px
+
+- 大于1200 大屏幕 min-width=1200px
+
+```css
+@media only screen and (min-width: 500px) and (max-width:700px){
+    body{
+        background-color: #bfa;
+    }
+}
+```
+
+
+
