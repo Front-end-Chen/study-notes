@@ -1,6 +1,115 @@
 # TypeScript
 
-# 一、TypeScript简介
+# 一、强类型与弱类型的问题与优势
+
+## 1.强类型与弱类型（类型安全）
+
+强类型：语言层面限制函数的实参类型必须与形参类型相同
+
+弱类型：语言层面不会限制实参的类型
+
+```java
+class Main {
+    static void foo(int num) {
+        System.out.println(num);
+    }
+    public static void main(String[] args) {
+        Main.foo(100); // ok
+        Main.foo("100"); //error "100" is a string
+        Main.foo(Integer.parseInt("100")); // ok
+    }
+}
+```
+
+```js
+function foo (num){console.log(num)}
+foo(100) // ok
+foo('100') // ok
+foo(parseInt('100')) // ok
+```
+
+强类型有更强的类型约束，而弱类型中几乎没有什么约束
+
+强类型不允许随意的隐式类型转换，而弱类型是允许的
+
+```js
+'100'- 50 //50
+Math.floor('foo')  //NaN
+Math.floor(true) //1
+```
+
+```python
+>>> '100' - 50
+Traceback (most recent call last):File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for -: 'str' and 'int'
+>>> abs('foo')
+Traceback (most recent call last):File "<stdin>", line 1, in <module>
+TypeError: bad operand type for abs(): 'str'
+```
+
+变量类型允许随时改变的特点，不是强弱类型的差异
+
+## 2.静态类型与动态类型（类型检查）
+
+静态类型：一个变量声明时它的类型就是明确的，声明过后，它的类型就不允许再修改
+
+动态类型：运行阶段才能够明确变量类型，而且变量的类型随时可以改变
+
+```js
+var foo = 100
+foo = 'bar' //ok
+console.log(foo)
+```
+
+动态类型语言中的变量没有类型，变量中存放的值是有类型的
+
+JavaScript缺失了类型系统的可靠性，早前的 JavaScript应用简单，JavaScript没有编译环节。
+
+所以JavaScript是弱类型，动态类型的语言。
+
+## 3.弱类型产生的问题
+
+君子约定有隐患，强制要求有保障
+
+```js
+//JavaScript弱类型产生的问题
+const obj = {}
+obj.foo()
+setTimeout(() => {
+    obj.foo()
+}, 1000)
+
+function sum (a，b) {
+	return a + b
+}
+console.log(sum(100，100))
+console.log(sum(100, '100'))
+
+const obj = {}
+obj[true] = 100
+console.log(obj['true'])
+```
+
+## 4.强类型的优势
+
+- 错误更早暴露
+
+- 代码更智能，编码更准确
+
+- 重构更牢靠
+
+- 减少不必要的类型判断
+
+```js
+function sum(a, b){
+    if (typeof a !== 'number' || typeof b !== 'number') {
+        throw new TypeError('arguments must be a number')
+    }
+	return a + b
+}
+```
+
+# 二、TypeScript简介
 
 ## 1.TypeScript简介
 
@@ -117,7 +226,273 @@ function say(word: string) {
 say(1); //变量类型不匹配错误
 ```
 
-# 二、数据类型
+# 三、TS配置文件
+
+## 1.配置选项
+
+- 自动编译文件
+
+  - 编译文件时，使用 -w 指令后，TS编译器会自动监视文件的变化，并在文件发生变化时对文件进行重新编译。
+
+  - 示例：
+
+    - ```powershell
+      tsc xxx.ts -w
+      ```
+
+- 自动编译整个项目
+
+  - 如果直接使用tsc指令，则可以自动将当前项目下的所有ts文件编译为js文件。
+
+  - 但是能直接使用tsc命令的前提时，要先在项目根目录下创建一个ts的配置文件 tsconfig.json
+
+  - tsconfig.json是一个JSON文件，添加配置文件后，只需只需 tsc 命令即可完成对整个项目的编译
+
+  - 配置选项：
+
+    - include
+
+      - 定义希望被编译文件所在的目录
+
+      - 默认值：["\*\*/\*"]
+
+      - 路径：* * 表示任意目录，* 表示任意文件
+
+      - 示例：
+
+        - ```json
+          "include":["src/**/*", "tests/**/*"]
+          ```
+
+        - 上述示例中，所有src目录和tests目录下的文件都会被编译
+
+    - exclude
+
+      - 定义需要排除在外的目录
+
+      - 默认值：["node_modules", "bower_components", "jspm_packages"]
+
+      - 示例：
+
+        - ```json
+          "exclude": ["./src/hello/**/*"]
+          ```
+
+        - 上述示例中，src下hello目录下的文件都不会被编译
+
+    - extends
+
+      - 定义被继承的配置文件
+
+      - 示例：
+
+        - ```json
+          "extends": "./configs/base"
+          ```
+
+        - 上述示例中，当前配置文件中会自动包含config目录下base.json中的所有配置信息
+
+    - files
+
+      - 指定被编译文件的列表，只有需要编译的文件少时才会用到
+
+      - 示例：
+
+        - ```json
+          "files": [
+              "core.ts",
+              "sys.ts",
+              "types.ts",
+              "scanner.ts",
+              "parser.ts",
+              "utilities.ts",
+              "binder.ts",
+              "checker.ts",
+              "tsc.ts"
+            ]
+          ```
+
+        - 列表中的文件都会被TS编译器所编译
+
+      - compilerOptions
+
+        - 编译选项是配置文件中非常重要也比较复杂的配置选项
+
+        - 在compilerOptions中包含多个子选项，用来完成对编译的配置
+
+          - 项目选项
+
+            - target
+
+              - 设置ts代码编译的目标版本
+
+              - 可选值：
+
+                - ES3（默认）、ES5、ES6/ES2015、ES7/ES2016、ES2017、ES2018、ES2019、ES2020、ESNext
+
+              - 示例：
+
+                - ```json
+                  "compilerOptions": {
+                      "target": "ES6"
+                  }
+                  ```
+
+                - 如上设置，我们所编写的ts代码将会被编译为ES6版本的js代码
+
+            - lib
+
+              - 指定代码运行时所包含的库（宿主环境）
+
+              - 可选值：
+
+                - ES5、ES6/ES2015、ES7/ES2016、ES2017、ES2018、ES2019、ES2020、ESNext、DOM、WebWorker、ScriptHost ......
+
+              - 示例：
+
+                - ```json
+                  "compilerOptions": {
+                      "target": "ES6",
+                      "lib": ["ES6", "DOM"],
+                      "outDir": "dist",
+                      "outFile": "dist/aa.js"
+                  }
+                  ```
+
+            - module
+
+              - 设置编译后代码使用的模块化系统
+
+              - 可选值：
+
+                - CommonJS、UMD、AMD、System、ES2020、ESNext、None
+
+              - 示例：
+
+                - ```typescript
+                  "compilerOptions": {
+                      "module": "CommonJS"
+                  }
+                  ```
+
+            - outDir
+
+              - 编译后文件的所在目录
+
+              - 默认情况下，编译后的js文件会和ts文件位于相同的目录，设置outDir后可以改变编译后文件的位置
+
+              - 示例：
+
+                - ```json
+                  "compilerOptions": {
+                      "outDir": "dist"
+                  }
+                  ```
+
+                - 设置后编译后的js文件将会生成到dist目录
+
+            - outFile
+
+              - 将所有的文件编译为一个js文件
+
+              - 默认会将所有的编写在全局作用域中的代码合并为一个js文件，如果module制定了None、System或AMD则会将模块一起合并到文件之中
+
+              - 示例：
+
+                - ```json
+                  "compilerOptions": {
+                      "outFile": "dist/app.js"
+                  }
+                  ```
+
+            - rootDir
+
+              - 指定代码的根目录，默认情况下编译后文件的目录结构会以最长的公共目录为根目录，通过rootDir可以手动指定根目录
+
+              - 示例：
+
+                - ```json
+                  "compilerOptions": {
+                      "rootDir": "./src"
+                  }
+                  ```
+
+            - allowJs
+
+              - 是否对js文件编译
+
+            - checkJs
+
+              - 是否对js文件进行检查
+
+              - 示例：
+
+                - ```json
+                  "compilerOptions": {
+                      "allowJs": true,
+                      "checkJs": true
+                  }
+                  ```
+
+            - removeComments
+
+              - 是否删除注释
+              - 默认值：false
+
+            - noEmit
+
+              - 不对代码进行编译
+              - 默认值：false
+
+            - sourceMap
+
+              - 是否生成sourceMap
+              - 默认值：false
+
+              
+
+          - 严格检查
+
+            - strict
+              - 启用所有的严格检查，默认值为true，设置后相当于开启了所有的严格检查
+            - alwaysStrict
+              - 总是以严格模式对代码进行编译
+            - noImplicitAny
+              - 禁止隐式的any类型
+            - noImplicitThis
+              - 禁止类型不明确的this
+            - strictBindCallApply
+              - 严格检查bind、call和apply的参数列表
+            - strictFunctionTypes
+              - 严格检查函数的类型
+            - strictNullChecks
+              - 严格的空值检查
+            - strictPropertyInitialization
+              - 严格检查属性是否初始化
+
+          - 额外检查
+
+            - noFallthroughCasesInSwitch
+              - 检查switch语句包含正确的break
+            - noImplicitReturns
+              - 检查函数没有隐式的返回值
+            - noUnusedLocals
+              - 检查未使用的局部变量
+            - noUnusedParameters
+              - 检查未使用的参数
+
+          - 高级
+
+            - allowUnreachableCode
+              - 检查不可达代码
+              - 可选值：
+                - true，忽略不可达代码
+                - false，不可达代码将引起错误
+            - noEmitOnError
+              - 有错误的情况下不进行编译
+              - 默认值：false
+
+# 四、数据类型
 
 ## 1.基本语法
 
@@ -205,7 +580,7 @@ const x3 = add2(1, '1'); // ts(2345) Argument of type '"1"' is not assignable to
 |  unknown   |           *            |              TS新增类型，类型安全的any               |
 |    void    |   空值（undefined）    |          TS新增类型，没有值（或undefined）           |
 |   never    |         没有值         |               TS新增类型，不能是任何值               |
-|   object   |    {name:'孙悟空'}     |                     任意的JS对象                     |
+|   object   |    {name:'孙悟空'}     |         任意的JS对象（包括数组，对象和函数）         |
 |   array    |        [1,2,3]         |                      任意JS数组                      |
 |   tuple    |         [4,5]          |            TS新增类型，元素，固定长度数组            |
 |    enum    |       enum{A, B}       |                  TS中新增类型，枚举                  |
@@ -578,6 +953,14 @@ enum 枚举名 {
     ...
     标识符[= 整型常数/字符串],
 };
+
+//常量枚举
+const enum 枚举名 {
+    标识符[= 整型常数/字符串],
+    标识符[= 整型常数/字符串], 
+    ...
+    标识符[= 整型常数/字符串],
+};
 ```
 
 3.示例1：如果标识符没有赋值，它的值就是下标。
@@ -701,7 +1084,7 @@ function getName(n: NameOrResolver): Name {
 }
 ```
 
-# 二、函数（function）
+# 五、函数（function）
 
 ## 1.函数定义
 
@@ -931,7 +1314,115 @@ reverse("abc")
 
 上例中，我们重复定义了多次函数 `reverse`，前几次都是重载声明，最后一次是重载实现。**函数重载声明的各个成员必须是函数实现的子集**，例如 "function reverse(x: number): number;"是"function reverse(x: number | string): number | string | void"的子集。
 
-# 三、类（class）
+## 9.函数中的this
+
+使用了 TypeScript 后，我们就不用担心这个问题了。通过指定 this 的类型（严格模式下，必须显式指定 this 的类型），当我们错误使用了 this，TypeScript 就会提示我们，如下代码所示：
+
+```js
+function say() {
+    console.log(this.name); // ts(2683)
+}
+say();
+```
+
+在上述代码中，如果我们直接调用 say 函数，this 应该指向全局 window 或 global（Node 中）。但是，在 strict 模式下的 TypeScript 中，它会提示 this 的类型是 any，此时就需要我们手动显式指定类型了。
+
+那么，在 TypeScript 中，我们应该如何声明 this 的类型呢？
+
+在 TypeScript 中，我们只需要在函数的第一个参数中声明 this 指代的对象（即函数被调用的方式）即可，比如最简单的作为对象的方法的 this 指向，如下代码所示：
+
+```js
+function say(this: Window, name: string) {
+    console.log(this.name);
+}
+window.say = say;
+window.say('hi');
+const obj = {
+    say
+};
+obj.say('hi'); // ts(2684)
+```
+
+在上述代码中，我们在 window 对象上增加 say 的属性为函数 say。那么调用`window.say()`时，this 指向即为 window 对象。
+
+调用`obj.say()`后，此时 TypeScript 检测到 this 的指向不是 window，于是抛出了如下所示的一个 ts(2684) 错误。
+
+**需要注意的是，如果我们直接调用 say()，this 实际上应该指向全局变量 window，但是因为 TypeScript 无法确定 say 函数被谁调用，所以将 this 的指向默认为 void，也就提示了一个 ts(2684) 错误。**
+
+此时，我们可以通过调用 window.say() 来避免这个错误，这也是一个安全的设计。因为在 JavaScript 的严格模式下，全局作用域函数中 this 的指向是 undefined。
+
+**同样，定义对象的函数属性时，只要实际调用中 this 的指向与指定的 this 指向不同，TypeScript 就能发现 this 指向的错误，示例代码如下：**
+
+```js
+interface Person {
+    name: string;
+    say(this: Person): void;
+}
+const person: Person = {
+    name: 'captain',
+    say() {
+        console.log(this.name);
+    }
+};
+const fn = person.say;
+fn(); // ts(2684)
+```
+
+**注意：显式注解函数中的 this 类型，它表面上占据了第一个形参的位置，但并不意味着函数真的多了一个参数，因为 TypeScript 转译为 JavaScript 后，“伪形参” this 会被抹掉，这算是 TypeScript 为数不多的特有语法。**
+
+当然，初次接触这个特性时让人费解，这就需要我们把它铭记于心。前边的 say 函数转译为 JavaScript 后，this 就会被抹掉，如下代码所示：
+
+```js
+function say(name) {
+    console.log(this.name);
+}
+```
+
+同样，我们也可以显式限定类函数属性中的 this 类型，TypeScript 也能检查出错误的使用方式，如下代码所示：
+
+```js
+class Component {
+  onClick(this: Component) {}
+}
+const component = new Component();
+interface UI {
+  addClickListener(onClick: (this: void) => void): void;
+}
+const ui: UI = {
+  addClickListener() {}
+};
+ui.addClickListener(new Component().onClick); // ts(2345)
+```
+
+上面示例中，我们定义的 Component 类的 onClick 函数属性（方法）显式指定了 this 类型是 Component，在第 14 行作为入参传递给 ui 的 addClickListener 方法中，它指定的 this 类型是 void，两个 this 类型不匹配，所以抛出了一个 ts(2345) 错误。
+
+此外，在链式调用风格的库中，使用 this 也可以很方便地表达出其类型，如下代码所示：
+
+```js
+class Container {
+  private val: number;
+  constructor(val: number) {
+    this.val = val;
+  }
+  map(cb: (x: number) => number): this {
+    this.val = cb(this.val);
+    return this;
+  }
+  log(): this {
+    console.log(this.val);
+    return this;
+  }
+}
+const instance = new Container(1)
+  .map((x) => x + 1)
+  .log() // => 2
+  .map((x) => x * 3)
+  .log(); // => 6  
+```
+
+因为 Container 类中 map、log 等函数属性（方法）未显式指定 this 类型，默认类型是 Container，所以以上方法在被调用时返回的类型也是 Container，this 指向一直是类的实例，它可以一直无限地被链式调用。
+
+# 六、类（class）
 
 ## 1.类的定义与使用
 
@@ -987,7 +1478,7 @@ p.sayHello();
 2.只读属性（readonly）：
 
 - 如果在声明属性时添加一个readonly，则属性便成了只读属性无法修改
-- 注意：如果 `readonly` 和其他访问修饰符同时存在的话，需要写在其后面。
+- 注意：如果 `readonly` 和 **其他访问修饰符同时存在** 的话，需要 **写在其后面** 。
 
 3.使用static开头的属性是静态属性（类属性），可以直接通过类去访问
 
@@ -1061,7 +1552,7 @@ class Animal{
     age: number;
 
     // constructor 被称为构造函数
-    //  构造函数会在对象创建时调用
+    // 构造函数会在对象创建时调用
     constructor(name: string, age: number) {
         this.name = name;
         this.age = age;
@@ -1325,7 +1816,7 @@ let a: Animal = new Animal('Jack');
 console.log(a.sayHi()); // My name is Jack
 ```
 
-# 四、接口（Interface）
+# 七、接口（Interface）
 
 ## 1.接口的概念与作用
 
@@ -1504,7 +1995,7 @@ interface Web {
 }
 
 //前端工程师
-class WebProgrammer implements Person, Web {
+class WebProgrammer implements Programmer, Web {
     public name: string;
     constructor(name: string) {
         this.name = name;
@@ -1752,7 +2243,7 @@ let p2: PointInstanceType;
 
 同样的，在接口继承类的时候，也只会继承它的实例属性和实例方法。
 
-# 五、泛型
+# 八、泛型
 
 ## 1.泛型的简介
 
@@ -1988,4 +2479,5 @@ function createArray<T = string>(length: number, value: T): Array<T> {
     return result;
 }
 ```
+
 
