@@ -48,11 +48,13 @@
 //配置具体的修改规则
 const { override, fixBabelImports} = require('customize-cra');
 module.exports = override(
-    fixBabelImports('import', {
-        libraryName: 'antd',
-        libraryDirectory: 'es',
-        style: true,
-    })
+  // 配置babel-plugin-import ==> 只打包import模块及css
+  fixBabelImports('import', {
+    libraryName: 'antd', //对哪个库进行按需引入
+    libraryDirectory: 'es', //样式模块化作为ES6模块处理
+    // style: 'css', // 自动打包组件对应css
+    style: true, // 加载less编译
+  }),
 );
 ```
 
@@ -71,6 +73,7 @@ module.exports = override(
 const {addLessLoader} = require('customize-cra');
 module.exports = override(
     ...,
+    // 添加less-loader对应的配置  ==> 修改primary对应的颜色
     addLessLoader({
         lessOptions:{
             javascriptEnabled: true,

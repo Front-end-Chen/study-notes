@@ -290,9 +290,8 @@ var ele = <h1>Hello JSX!</h1>
 - 比如原生使用内联样式style
 
 - **注：**
-
   - 样式的类名指定不要用class，要用className。
-
+  
   - 内联样式，要用 style={{key: value}} 的形式去写。两个单词的css样式要写 **小驼峰** 的形式。
     将样式以key: value的形式，放在对象里, 最后放入{}中。React 会在指定元素数字后自动添加 px。
 
@@ -364,6 +363,8 @@ var ele = <h1>Hello JSX!</h1>
 ​        (2).若大写字母开头，react就去渲染对应的组件，若组件没有定义，则报错。
 
 ​    10.每个列表的li都应该有唯一的key, key应该设置在兄弟节点，且只是在兄弟节点之间必须唯一。
+
+​    11.JSX 防止注入攻击：使用花括号直接引用渲染内容的时候，React会自动转义
 
 **注:**
 
@@ -528,6 +529,22 @@ var arr3 = arr.map(function(item){
 - 声明式编程是建立命令式编程的基础上
 
 - 数组中常见声明式方法：map() / filter() / reduce() / forEach() / find() / findIndex()
+
+## 10.单向数据流
+
+1.react官网中有提到单向数据流
+
+- 指的就是通过props进行数据的传递，只能由父组件传向子组件
+
+<img src='./img/props传递.jpg' />
+
+2.Vue和React中组件内部数据传递都有单向数据流的概念
+
+<img src='./img/react与vue中的组件内部数据传递.jpg' />
+
+3.Redux中数据管理
+
+<img src='./img/redux官方图.png' />
 
 # 二、React组件化开发
 
@@ -836,7 +853,7 @@ this.setState({
 
 4.props是只读的
 
-5.作用:
+5.作用：
 
 ​    1) 通过标签属性从组件外向组件内传递变化的数据(父传子)
 
@@ -2744,7 +2761,7 @@ class Person {
 console.log(Person.name);
 ```
 
-4）ref的转发 - 函数式组件使用ref，获取组件内某个元素的DOM
+4）**ref的转发** - 函数式组件使用ref，获取组件内某个元素的DOM
 
 - 使用React.forwardRef()高阶组件
 
@@ -3824,10 +3841,9 @@ export default class App extends PureComponent {
     - 在生产环境中，是不会被调用两次的；
 
   - 5.检测过时的context API
-
-    - 早期的Context是通过static属性声明Context对象属性，通过getChildContext返回Context对象等方式来使用Context的；
-
-    - 目前这种方式已经不推荐使用
+- 早期的Context是通过static属性声明Context对象属性，通过getChildContext返回Context对象等方式来使用Context的；
+  
+- 目前这种方式已经不推荐使用
 
 # 三、React中的样式
 
@@ -4045,7 +4061,7 @@ export default class App extends PureComponent {
   color: yellow;
 }
 
-.setting {
+.setting   {
 
 }
 
@@ -4459,6 +4475,7 @@ const warnClass = 10;
 <h2 className="foo bar active title">我是标题4</h2>
 <h2 className={classNames("foo", "bar", "active", "title")}>我是标题5</h2>
 <h2 className={classNames({"active": isActive, "bar": isBar}, "title")}>我是标题6</h2>
+//数字和字符串会添加到className中，undefined与null，以及0不会添加到className
 <h2 className={classNames("foo", errClass, warnClass, {"active": isActive})}>我是标题7</h2>
 <h2 className={classNames(["active", "title"])}>我是标题8</h2>
 <h2 className={classNames(["active", "title", {"bar": isBar}])}>我是标题9</h2>

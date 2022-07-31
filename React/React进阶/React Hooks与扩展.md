@@ -369,9 +369,14 @@ export default class Loading extends Component {
 
 **注：** 使用Hooks会有两个额外的规则：
 
-- 只能在函数最外层调用 Hook。不要在循环、条件判断或者子函数中调用。
+- **只能在函数最外层调用 Hook。不要在循环、条件判断或者子函数中调用。**
 
-- 只能在 React 的函数组件中调用 Hook。不要在其他 JavaScript 函数中调用。
+- **只能在 React 的函数组件中调用 Hook。不要在其他 JavaScript 函数中调用。**
+
+ **Hooks使用规则的原因：**
+
+- Hooks 的设计是基于 **数组** 实现。在调用时按顺序加入数组中，如果使用循环、条件或嵌套函数很有可能导致数组取值错位，执行错误的 Hook。当然，实质上 React 的源码里不是数组，是 **链表** 。
+- React需要利用调用顺序来正确更新相应的状态，以及调用相应的钩子函数。一旦在循环或条件分支语句中调用Hook，就容易导致调用顺序的不一致性，从而产生难以预料到的后果。
 
 ### 5.2 Class组件存在的问题
 
@@ -417,7 +422,12 @@ export default class Loading extends Component {
 
 - setXxx(value => newValue): 参数为函数, 接收原本的状态值, 返回新的状态值, 内部用其覆盖原来的状态值
 
-**注：** setXxx与setState的特点一样
+**注：** 
+
+- setXxx与setState的特点一样
+
+- **如果初始值需要计算才能得到可以使用useState传入回调函数的形式确定初始值**
+- **useState设置状态的时候，只有第一次生效，后期需要更新状态，必须通过useEffect或事件回调里调用setXXX**
 
 **实例1：** 多个状态的使用
 
@@ -465,7 +475,7 @@ export default function ComplexHookState() {
     friends.push("hmm");
     setFrineds(friends);
   }
-
+  //正确做法
   function incrementAgeWithIndex(index) {
     const newStudents = [...students];
     newStudents[index].age += 1;
@@ -756,35 +766,30 @@ export default function RefHookDemo02() {
 ```jsx
 //app.js
 export const UserContext = createContext();
-export const ThemeContext = createContext();
 export default function App() {
  
   return (
     <div>
       {/* 4.useContext */}
       <UserContext.Provider value={{name: "why", age: 18}}>
-        <ThemeContext.Provider value={{fontSize: "30px", color: "red"}}>
           <ContextHookDemo/>
-        </ThemeContext.Provider>
       </UserContext.Provider>
     </div>
   )
 }
 
-
 //ContextHookDemo.jsx
 import React, { useContext } from 'react';
-import { UserContext, ThemeContext } from "../App";
+import { UserContext } from "../App";
 
 export default function ContextHookDemo(props) {
   const user = useContext(UserContext);
-  const theme = useContext(ThemeContext);
 
-  console.log(user, theme);
+  console.log(user);
 
   return (
-    <div>
-      <h2>ContextHookDemo</h2>
+    <div>  
+      <h2>ContextHookDemo{user.name}，{user.age}</h2>
     </div>
   )
 }
@@ -1307,7 +1312,7 @@ export default useLocalStorage;
 
 - 在Redux7.1开始，提供了Hook的方式，我们再也不需要编写connect以及对应的映射函数了
 
-- useSelector的作用是将state映射到组件中：
+- useSelector的作用是将redux中的state映射到组件中：
   - 参数一：将state映射到需要的数据中；
   - 参数二：可以进行比较来决定是否组件重新渲染，可以使用shallowEqual（浅比较）做性能优化
 
@@ -1460,7 +1465,7 @@ export default class Parent extends Component {
 
 5.refs
 
-- 父子组件间通信: 父组件需要子组件数据（给子组件设置ref，获取子组件数据）
+- 父子组件间通信: 父组件需要子组件数据（方法）（给子组件设置ref，获取子组件数据）
 
 - 父组件得到子组件对象, 从而可以读取其状态数据或调用其方法更新其状态数据
 
@@ -1468,7 +1473,7 @@ export default class Parent extends Component {
 
 - 父子组件：
   - props（一般属性 / 函数属性（子传父）/ childen props / jsx props / render props）
-  - refs（子传父）
+  - 直接refs（类组件子传父）/ useRef、forwardRef与useImperativeHandle结合（函数组件子传父）
 - 兄弟组件：
   - 消息订阅-发布（pubs-sub / events）
   - 集中式管理（redux / dva）
@@ -1477,5 +1482,23 @@ export default class Parent extends Component {
   - 集中式管理（redux / dva）
   - conText（开发用的少，封装插件用的多）
 
+## 8. serve-快速以文件夹开启服务器的库
 
+1.安装
+
+```
+npm i serve -g
+
+npm i serve
+```
+
+2.使用
+
+```
+serve
+serve ./a
+
+npx serve
+npx serve ./a
+```
 

@@ -546,7 +546,7 @@ search = async()=>{
 }
 ```
 
-# 三、React 路由
+# 三、React Router v4
 
 ## 1.相关理解
 
@@ -947,7 +947,7 @@ qs.parse(search.slice(1))
 
 - **注：** 获取到的search是urlencoded编码字符串，需要借助querystring解析！
 
-3.state参数 - Link中to传入对象（推荐！）
+**3.state参数 - Link中to传入对象（推荐！）**
 
 ​    1）路由链接(携带参数)：
 
@@ -1153,7 +1153,7 @@ export default withRouter(Header)
 
 ​    BrowserRouter使用的是H5的history API，不兼容IE9及以下版本。
 
-​    HashRouter使用的是URL的哈希值。
+​    HashRouter使用的是URL的哈希值（window.hash）。
 
 2.path表现形式不一样
 

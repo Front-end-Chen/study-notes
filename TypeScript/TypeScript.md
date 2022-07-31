@@ -230,6 +230,8 @@ say(1); //变量类型不匹配错误
 
 ## 1.配置选项
 
+**注：** 如果使用命令 tsc xxx.ts 则不会使用tsconfig.json的配置文件进行编译。但是如果使用 ts-node xxx.ts 是会使用TS配置文件进行编译。
+
 - 自动编译文件
 
   - 编译文件时，使用 -w 指令后，TS编译器会自动监视文件的变化，并在文件发生变化时对文件进行重新编译。
@@ -346,7 +348,7 @@ say(1); //变量类型不匹配错误
 
               - 可选值：
 
-                - ES5、ES6/ES2015、ES7/ES2016、ES2017、ES2018、ES2019、ES2020、ESNext、DOM、WebWorker、ScriptHost ......
+                - ES5、ES6/ES2015、ES7/ES2016、ES2017、ES2018、ES2019、ES2020、ESNext、DOM、dom.iterable、WebWorker、ScriptHost ......
 
               - 示例：
 
@@ -441,15 +443,13 @@ say(1); //变量类型不匹配错误
 
             - noEmit
 
-              - 不对代码进行编译
+              - 不对代码进行编译。只进行类型检查
               - 默认值：false
 
             - sourceMap
 
               - 是否生成sourceMap
               - 默认值：false
-
-              
 
           - 严格检查
 
@@ -469,18 +469,18 @@ say(1); //变量类型不匹配错误
               - 严格的空值检查
             - strictPropertyInitialization
               - 严格检查属性是否初始化
-
+          
           - 额外检查
 
             - noFallthroughCasesInSwitch
               - 检查switch语句包含正确的break
             - noImplicitReturns
-              - 检查函数没有隐式的返回值
+              - 检查函数没有隐式的返 回值
             - noUnusedLocals
               - 检查未使用的局部变量
             - noUnusedParameters
               - 检查未使用的参数
-
+          
           - 高级
 
             - allowUnreachableCode
@@ -491,6 +491,51 @@ say(1); //变量类型不匹配错误
             - noEmitOnError
               - 有错误的情况下不进行编译
               - 默认值：false
+
+- 其他配置：
+
+```
+"skipLibCheck": true, // 跳过所有声明文件的类型检查
+```
+
+```
+// 允许使用esModule方式import commonjs规范的库，ts为了对commonjs语法进行兼容
+"esModuleInterop": true, 使用 import React from 'react'
+"esModuleInterop": false, 则使用 import * as React from 'react'
+// 开启esModuleInterop后会默认开启allowSyntheticDefaultImports选项
+```
+
+```
+"allowSyntheticDefaultImports": true, // 允许从没有默认导出的模块进行默认导入，去除类型检查
+```
+
+```
+"moduleResolution": "node", // 使用 Node.js 风格解析模块
+```
+
+```
+"resolveJsonModule": true, // 允许使用 .json 扩展名导入的模块
+```
+
+```
+"forceConsistentCasingInFileNames": true, // 不允许对同一个文件使用不一致格式的引用
+```
+
+```
+"isolatedModules": true, // 编译器会将每个文件作为单独的模块来使用
+```
+
+```
+"jsx": "react" // 直接jsx语法，控制jsx以那种模式转为js，并且输出到js文件
+```
+
+```
+"declaration": true, // 生成相应的.d.ts文件
+```
+
+```
+"incremental": true, // 通过从以前的编译中读取/写入信息到磁盘上的文件来启用增量编译
+```
 
 # 四、数据类型
 
@@ -803,6 +848,10 @@ create('string'); // ts(2345)
 let arrayOfNumber: number[] = [1, 2, 3];
 /** 子元素是字符串类型的数组 */
 let arrayOfString: string[] = ['x', 'y', 'z'];
+
+const arr: (number | string)[] = [1, '2', 3];
+const stringArr: string[] = ['a', 'b', 'c'];
+const undefinedArr: undefined[] = [undefined];
 ```
 
 2.第二种定义方式：使用 Array 泛型定义数组类型，语法：Array<类型>
@@ -827,15 +876,24 @@ arrayOfString[3] = 1; // 提示 ts(2322)
 arrayOfString.push(2); // 提示 ts(2345)
 ```
 
+4.class类的数组可以是new出来的，也可以是属性和class的属性的属性名和值的类型相同！
+
+具体见19.类型别名小节
+
 ## 13.元组类型（Tuple）
 
-1.元组就是固定长度的数组，它最重要的特性是可以限制数组元素的个数和类型，它特别适合用来实现多值返回。应用场景如react hooks的useState。
+1.元组就是固定长度的数组，它最重要的特性是可以限制数组元素的个数和类型，它特别适合用来实现多值返回。应用场景如 react hooks的useState; csv文件数据转为ts数据结构
 
 2.语法：[类型, 类型, 类型]
 
 ```typescript
 let h: [string, number];
 h = ['hello', 123];
+
+// 元组 tuple
+const teacherInfo: [string, string, number] = ['Dell', 'male', 18];
+// csv文件数据转为ts数据结构
+const teacherList: [string, string, number][] = [['dell', 'male', 19], ['sun', 'female', 26], ['jeny', 'female', 38]];
 ```
 
 ## 14.联合类型
@@ -899,6 +957,27 @@ function getArea(param: Colors & Rectangle) {
         return param.height * param.width
     }
 }
+
+
+const bookList =[{
+	author: 'xiaoming',
+	type: 'history',
+    range: '2001-2021',
+},{
+	author: 'xiaoli',
+    type: 'story',
+    theme: 'love',
+}]
+//定义bookList数据的类型
+type IBookList = Array<{
+    author: string;
+} & ({
+	type: 'history';
+    range: string;
+} | {
+	type: 'story';
+    theme: string;
+})>
 ```
 
 ## 16.字面量声明（限制变量的范围）
@@ -940,7 +1019,7 @@ c = {name: '猪八戒', age: 18, gender: '男'};
 console.log(c);
 ```
 
-## 17.enum 枚举
+## 17.enum 枚举类型
 
 1.事先考虑到某一变量可能取的值，尽量用自然语言中含义清楚的单词来表示它的每一个值，这种方法称为枚举方法，用这种方法定义的类型称枚举类型。
 
@@ -961,9 +1040,13 @@ const enum 枚举名 {
     ...
     标识符[= 整型常数/字符串],
 };
+
+//获取枚举数据
+console.log(枚举名.标识符);
+console.log(枚举名[标识符的具体值]);
 ```
 
-3.示例1：如果标识符没有赋值，它的值就是下标。
+3.示例1：如果标识符没有赋值，它的值就是下标（从0开始）。
 
 ```typescript
 enum Flag {
@@ -1008,7 +1091,7 @@ let s: Flag = Flag.overtime;
 console.log(s); //101
 ```
 
-## 18.类型断言（Type Assertion）
+## 18.类型断言
 
 1.有些情况下，变量的类型对于我们来说是很明确，但是TS编译器却并不清楚，此时，可以通过类型断言来告诉编译器变量的类型，断言有两种形式：
 
@@ -1036,7 +1119,7 @@ const arrayNumber: number[] = [1, 2, 3, 4];
 const greaterThan2: number = arrayNumber.find(num => num > 2) as number;
 ```
 
-以上两种方式虽然没有任何区别，但是尖括号格式会与 JSX 产生语法冲突，因此我们更推荐使用 as 语法。
+以上两种方式虽然没有任何区别，但是尖括号格式会与 JSX 产生语法冲突，因此我们 **更推荐使用 as 语法** 。
 
 3.**非空断言**，即在值（变量、属性）的后边添加 '!' 断言操作符，它可以用来排除值为 null、undefined 的情况，具体示例如下：
 
@@ -1050,11 +1133,11 @@ mayNullOrUndefinedOrString.toString(); // ts(2531)
 
 在复杂应用场景中，如果我们使用非空断言，就无法保证之前一定非空的值，比如页面中一定存在 id 为 feedback 的元素，数组中一定有满足 > 2 条件的数字，这些都不会被其他人改变。而一旦保证被改变，错误只会在运行环境中抛出，而静态类型检测是发现不了这些错误的。
 
-所以，我们建议使用**类型守卫来代替非空断言**，比如如下所示的条件判断：
+所以，我们 **建议使用类型守卫（类型保护）来代替非空断言** ，比如如下所示的条件判断：
 
 ```typescript
 let mayNullOrUndefinedOrString: null | undefined | string;
-if (typeof mayNullOrUndefinedOrString === 'string') { //类型守卫
+if (typeof mayNullOrUndefinedOrString === 'string') { //类型守卫(类型保护)
   mayNullOrUndefinedOrString.toString(); // ok
 }
 ```
@@ -1082,9 +1165,108 @@ function getName(n: NameOrResolver): Name {
         return n();
     }
 }
+
+type User = { name: string, age: number };
+const objectArr: User[] = [
+  {
+    name: 'dell',
+    age: 28
+  }
+];
 ```
 
-# 五、函数（function）
+3.class类的数组可以是new出来的，也可以是属性和class的属性的属性名和值的类型相同！
+
+```ts
+class Teacher {
+  name: string;
+  age: number;
+}
+// class类的数组可以是new出来的，也可以是属性和class的属性的属性名和值的类型相同！
+const objectArr: Teacher[] = [
+  new Teacher(),
+  {
+    name: 'dell',
+    age: 28
+  }
+];
+```
+
+## 20.特殊类型声明
+
+JSON.parse的返回值类型需要声明，无法自动推断
+
+```ts
+interface Person {
+  name: 'string';
+}
+const rawData = '{"name": "dell"}';
+const newData: Person = JSON.parse(rawData);
+```
+
+## 21.类型守卫（类型保护）
+
+函数参数传入的是联合类型时会出现报错需要进行类型保护，告诉ts此时具体的类型。
+
+方法有：
+
+1）使用类型断言
+
+2）使用 in 操作符
+
+3）使用 typeof 操作符
+
+4）使用 instanceof 操作符
+
+```ts
+interface Bird {
+  fly: boolean;
+  sing: ()=>{};
+}
+interface Dog {
+    fly: boolean; 
+    bark:()=>{};
+}
+
+//类型断言的方式
+function trainAnial(animal: Bird | Dog){
+  if (animal.fly){
+    (animal as Bird).sing();
+  } else {
+    (animal as Dog).bark();
+  }
+}
+
+//in语法来做类型保护
+function trainAnialSecond(animal: Bird | Dog){
+  if ('sing' in animal) {
+	animal.sing();
+  } else {
+	animal.bark();
+  }
+}
+
+//typeof语法来做类型保护
+function add(first: string | number, second: string | number){
+    if (typeof first == 'string' | typeof second == 'string'){
+        return `${first}${second}`;
+    }
+	return first + second;
+}
+
+//使用 instanceof 语法来做类型保护
+class Number0bj {
+  count: number;
+}
+function addSecond(first: object | Number0bj, second: object | Number) {
+  if (first instanceof Number0bj && second instanceof Number0bj){
+	return first.count + second. count;
+  }
+  return 0;
+}
+```
+
+# 五、函数
 
 ## 1.函数定义
 
@@ -1422,7 +1604,26 @@ const instance = new Container(1)
 
 因为 Container 类中 map、log 等函数属性（方法）未显式指定 this 类型，默认类型是 Container，所以以上方法在被调用时返回的类型也是 Container，this 指向一直是类的实例，它可以一直无限地被链式调用。
 
-# 六、类（class）
+## 10.解构参数
+
+对解构参数进行类型注解语法：
+
+function add({ first, second }: { first: number; second: number }): number {
+
+```ts
+function add({ first, second }: { first: number; second: number }): number {
+  return first + second;
+}
+
+function getNumber({ first }: { first: number }) {
+  return first;
+}
+
+const total = add({ first: 1, second: 2 });
+const count = getNumber({ first: 1 });
+```
+
+# 六、类
 
 ## 1.类的定义与使用
 
@@ -1525,6 +1726,27 @@ console.log(per.name, per.age);
 
 per.sayHello();
 // Person.sayHello();
+```
+
+**案例：单例模式**
+
+```ts
+class Demo {
+  private static instance: Demo;
+  private constructor(public name: string) {}
+
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new Demo('dell lee');
+    }
+    return this.instance;
+  }
+}
+
+const demo1 = Demo.getInstance();
+const demo2 = Demo.getInstance();
+console.log(demo1.name);
+console.log(demo2.name);
 ```
 
 ## 3.继承
@@ -1699,7 +1921,7 @@ class Person {
     //     }
     // }
 
-    // TS中设置getter方法的方式
+    // TS中设置getter与setter方法的方式
     get name(){
         // console.log('get name()执行了！！');
         return this._name;
@@ -1730,13 +1952,14 @@ per.age = -33;
 console.log(per.name, per.age);
 ```
 
-## 6.参数属性
+## 6.参数属性（简化写法）
 
 1.可以直接将属性定义在构造函数中，等同于类中定义该属性同时给该属性赋值，使代码更简洁。
 
 2.修饰符和`readonly`也可以使用在构造函数参数中，
 
 ```typescript
+//完整写法
 /* class C{
 
     name: string;
@@ -1750,19 +1973,17 @@ console.log(per.name, per.age);
 
 }*/
 
+//简化写法
 class C{
     // 可以直接将属性定义在构造函数中
-    constructor(public name: string, public age: number) {
-    	this.name = name;
-        this.age = age;
-    }
+    constructor(public name: string, public age: number) {}
 }
 
 const c = new C('xxx', 111);
 console.log(c);
 ```
 
-## 7.抽象类（abstract class）
+## 7.抽象类
 
 1.以abstract开头的类是抽象类
 
@@ -1795,6 +2016,41 @@ class Dog extends Animal{
 
 let d = new Dog('dd')
 console.log(d.name)
+
+
+```
+
+对比接口的使用：
+
+```ts
+interface Person {
+  name: string;
+}
+
+interface Teacher extends Person {
+  teachingAge: number;
+}
+
+interface Student extends Person {
+  age: number;
+}
+
+const teacher = {
+  name: 'dell',
+  teachingAge: 3
+};
+
+const student = {
+  name: 'lee',
+  age: 18
+};
+
+const getUserInfo = (user: Person) => {
+  console.log(user.name);
+};
+
+getUserInfo(teacher);
+getUserInfo(student);
 ```
 
 ## 8.类类型
@@ -1816,7 +2072,7 @@ let a: Animal = new Animal('Jack');
 console.log(a.sayHi()); // My name is Jack
 ```
 
-# 七、接口（Interface）
+# 七、接口
 
 ## 1.接口的概念与作用
 
@@ -1824,11 +2080,14 @@ console.log(a.sayHi()); // My name is Jack
 
 2.接口的作用就是对行为和动作进行规范和约束，跟抽象类类似，但是，接口中不能有方法体，只允许有方法定义。
 
-## 2.接口当成类型使用 - 定义对象的类型
+3.**接口在编译为js代码后不会存在，只起到类型限制与规范的作用。**
 
-- 使用接口（Interfaces）来定义对象的类型。
+## 2.接口当成类型使用 - 定义对象类型/函数类型
+
+- 使用接口（Interfaces）来定义对象类型或函数。
 
 ```typescript
+//定义对象类型
 interface myInterface {
     name: string;
     age: number;
@@ -1839,6 +2098,49 @@ const obj: myInterface = {
     name: 'sss',
     age: 111,
     gender: '男'
+};
+
+interface Person {
+  name: string;
+  age?: number;
+  say(): string;
+}
+
+const getPersonName = (person: Person): void => {
+  console.log(person.name);
+};
+
+const setPersonName = (person: Person, name: string): void => {
+  person.name = name;
+};
+
+const person = {
+  name: 'dell',
+  sex: 'male',
+  say() {
+    return 'say hello';
+  }
+};
+
+//直接传对象是不会强校验，有多余属性不会报错
+getPersonName(person);
+//如果直接传字面量对象是会强校验，有多余属性会报错
+getPersonName({
+  name: 'dell',
+  sex: 'male',
+  say() {
+    return 'say hello';
+  }
+});
+setPersonName(person, 'lee');
+
+//定义函数类型
+interface SayHi {
+  (word: string): string;
+}
+
+const say: SayHi = (word: string) => {
+  return word;
 };
 ```
 
@@ -2363,7 +2665,24 @@ function loggingIdentity<T extends Lengthwise>(arg: T): T {
     return arg;
 }
 
+loggingIdentity([1,2,3]);
+loggingIdentity("str");
+loggingIdentity({length: 2, name: "sdd"});
 loggingIdentity(7); // error TS2345
+```
+
+扩展实例：
+
+```ts
+class DataManager<T extends number | string> {
+  constructor(private data: T[]) {}
+  getItem(index: number): T {
+    return this.data[index];
+  }
+}
+
+const data = new DataManager<number>([1]);
+console.log(data.getItem(0))
 ```
 
 2.多个类型参数之间也可以互相约束：
@@ -2383,7 +2702,7 @@ console.log(copyFields(x, { b: 10, d: 20 })); // { a: 1, b: 10, c: 3, d: 20 }
 
 上例中，我们使用了两个类型参数，其中要求 `T` 继承 `U`，这样就保证了 `U` 上不会出现 `T` 中不存在的字段。
 
-## 5.泛型接口
+## 5.泛型接口定义函数
 
 - 使用接口的方式来定义一个函数的基本结构（参数、返回值）
 
@@ -2480,4 +2799,162 @@ function createArray<T = string>(length: number, value: T): Array<T> {
 }
 ```
 
+## 9.泛型作为类型注解
+
+```ts
+// 如何使用泛型作为一个具体的类型注解
+function hello<T>(params: T) {
+  return params;
+}
+
+const func: <T>(param: T) => T = hello;
+```
+
+# 九、命名空间namespace（模块化思想）
+
+- 未拆分组件版本：
+
+src/page.ts
+
+```ts
+namespace Home {
+  class Header {
+    constructor() {
+      const elem = document.createElement('div');
+      elem.innerText = 'This is Header';
+      document.body.appendChild(elem);
+    }
+  }
+
+  class Content {
+    constructor() {
+      const elem = document.createElement('div');
+      elem.innerText = 'This is Content';
+      document.body.appendChild(elem);
+    }
+  }
+
+  class Footer {
+    constructor() {
+      const elem = document.createElement('div');
+      elem.innerText = 'This is Footer';
+      document.body.appendChild(elem);
+    }
+  }
+  
+  //需要export外部才能使用
+  export class Page {
+    constructor() {
+      new Header();
+      new Content();
+      new Footer();
+    }
+  }
+}
+```
+
+执行tsc导出到dist/page.js
+
+index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+    <script src="./dist/page.js"></script>
+  </head>
+  <body>
+    <script>
+      new Home.Page();
+    </script>
+  </body>
+</html>
+```
+
+- 拆分组件版本：
+
+src/page.ts
+
+```ts
+//表示命名空间之间依赖关系
+///<reference path="components.ts" />
+
+//推荐使用commonjs语法导入
+import * as Components from "Components"
+
+namespace Home {
+  export namespace Dell {
+    export const teacher: Components.user = {
+      name: 'dell'
+    };
+  }
+  export class Page {
+    constructor() {
+      new Components.Header();
+      new Components.Content();
+      new Components.Footer();
+      new Components.Footer();
+    }
+  }
+}
+```
+
+src/components.ts
+
+```ts
+namespace Components {
+  export interface user {
+    name: string;
+  }
+
+  export class Header {
+    constructor() {
+      const elem = document.createElement('div');
+      elem.innerText = 'This is Header';
+      document.body.appendChild(elem);
+    }
+  }
+
+  export class Content {
+    constructor() {
+      const elem = document.createElement('div');
+      elem.innerText = 'This is Content';
+      document.body.appendChild(elem);
+    }
+  }
+
+  export class Footer {
+    constructor() {
+      const elem = document.createElement('div');
+      elem.innerText = 'This is Footer';
+      document.body.appendChild(elem);
+    }
+  }
+}
+```
+
+执行tsc默认分别导出到dist/page.js和components.js
+
+如果要合并导出到同一个文件则需配置tsconfig.json中"outFile": "./dist/page.js"
+
+index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+    <script src="./dist/page.js"></script>
+    <script src="./dist/components.js"></script>
+  </head>
+  <body>
+    <script>
+      new Home.Page();
+    </script>
+  </body>
+</html>
+```
 
